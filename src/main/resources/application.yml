@@ -1,0 +1,14 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 500
+        readTimeout: 500
+        loggerLevel: full
+      upbit-client:
+        defaultRequestHeaders:
+          Content-Type: application/json
