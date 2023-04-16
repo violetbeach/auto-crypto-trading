@@ -1,4 +1,4 @@
-package com.violetbeach.cryptoautotrading;
+package com.violetbeach.cryptoautotrading.runner;
 
 import com.violetbeach.cryptoautotrading.port.in.BuyLowPriceUseCase;
 import lombok.RequiredArgsConstructor;
