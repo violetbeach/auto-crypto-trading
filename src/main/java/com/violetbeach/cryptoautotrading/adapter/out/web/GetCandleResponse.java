@@ -2,7 +2,7 @@ package com.violetbeach.cryptoautotrading.adapter.out.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record GetCandleResponse(
+record GetCandleResponse(
         String market,
         @JsonProperty(value = "low_price")
         Double lowPrice,

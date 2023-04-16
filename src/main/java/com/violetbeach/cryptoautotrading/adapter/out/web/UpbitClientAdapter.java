@@ -1,22 +1,22 @@
 package com.violetbeach.cryptoautotrading.adapter.out.web;
 
-import com.violetbeach.cryptoautotrading.adapter.out.web.feign.UpbitFeignClient;
-import com.violetbeach.cryptoautotrading.port.in.GetTwoMonthPriceUseCase;
-import com.violetbeach.cryptoautotrading.port.in.GetKrwMarketsUseCase;
-import com.violetbeach.cryptoautotrading.service.domain.MarketInfo;
-import com.violetbeach.cryptoautotrading.service.domain.TwoMonthCandleInfo;
+import com.violetbeach.cryptoautotrading.application.domain.CandleInfoPerMonths;
+import com.violetbeach.cryptoautotrading.application.domain.MarketInfo;
+import com.violetbeach.cryptoautotrading.port.output.LoadSafetyKrwMarketsPort;
+import com.violetbeach.cryptoautotrading.port.output.LoadCandlesPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class UpbitClientAdapter implements GetKrwMarketsUseCase, GetTwoMonthPriceUseCase {
+class UpbitClientAdapter implements LoadSafetyKrwMarketsPort, LoadCandlesPort {
 
     private final UpbitFeignClient upbitFeignClient;
 
-    public List<MarketInfo> getAllMarkets() {
+    public List<MarketInfo> getMarkets() {
         List<GetMarketResponse> marketResponses = upbitFeignClient.getMarkets();
 
         List<MarketInfo> markets = marketResponses.stream()
@@ -26,19 +26,25 @@ public class UpbitClientAdapter implements GetKrwMarketsUseCase, GetTwoMonthPric
                         response.market(),
                         response.koreanName(),
                         response.englishName(),
-                        !response.marketWarning().equals(MarketStatus.NONE.name())
+                        false
                 )).toList();
         return markets;
     }
 
-    public TwoMonthCandleInfo getTwoMonthCandleInfo(String market) {
-        List<GetCandleResponse> candlePerMonth = upbitFeignClient.getCandlePerMonth(market, 2);
+    public CandleInfoPerMonths getCandleInfoPerMonths(String market, Integer perMonths) {
+        List<GetCandleResponse> response = upbitFeignClient.getCandlePerMonth(market, perMonths);
 
-        TwoMonthCandleInfo twoMonthCandleInfo = new TwoMonthCandleInfo(
+        Double lowPrice = response.stream()
+                .mapToDouble(GetCandleResponse::lowPrice)
+                .min()
+                .orElseThrow(NoSuchElementException::new);
+
+        CandleInfoPerMonths candlePerMonths = new CandleInfoPerMonths(
                 market,
-                Math.min(candlePerMonth.get(0).lowPrice(), candlePerMonth.get(1).lowPrice()),
-                candlePerMonth.get(0).tradePrice()
+                lowPrice,
+                response.get(0).tradePrice()
         );
-        return twoMonthCandleInfo;
+
+        return candlePerMonths;
     }
 }

@@ -1,5 +1,5 @@
 package com.violetbeach.cryptoautotrading.adapter.out.web;
 
-public enum MarketStatus {
+enum MarketStatus {
     NONE, CAUTION
 }

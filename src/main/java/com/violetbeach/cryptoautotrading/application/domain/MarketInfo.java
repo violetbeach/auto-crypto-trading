@@ -1,4 +1,4 @@
-package com.violetbeach.cryptoautotrading.service.domain;
+package com.violetbeach.cryptoautotrading.application.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
